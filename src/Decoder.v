@@ -1,8 +1,9 @@
 `timescale 1ns/1ps
-module Decoder (clk, reset, in, out);
+module Decoder (clk, reset, in, en, out);
     input clk;
     input reset;
     input in;
+    input en;
     output reg [3:0] out;
 
 
@@ -29,15 +30,18 @@ module Decoder (clk, reset, in, out);
     end
 
     always @(posedge clk) begin
-        if (!sig)
+        if (!sig && en)
         begin
-            in_data <= {in, in_data[7:1]};
-            in_count <= in_count + 1;
-        end
-        if (in_count == 3'b111)
-        begin
-            sig <= 1;
-            in_count <= 0;
+            if (in_count < 3'b111)
+            begin
+                in_data <= {in, in_data[7:1]};
+                in_count <= in_count + 1;
+            end
+            else if (in_count == 3'b111)
+            begin
+                sig <= 1;
+                in_count <= 0;
+            end
         end
     end
 
