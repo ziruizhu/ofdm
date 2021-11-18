@@ -1,6 +1,3 @@
-### Python template
-# Byte-compiled / optimized / DLL files
-work/
-*.mti
-*.wlf
-*.mpf
+*
+!src/
+!README.md
