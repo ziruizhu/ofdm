@@ -47,7 +47,6 @@ Mod mod1(
 wire ifft_en;
 wire signed [15:0] ifft_out_re;
 wire signed [15:0] ifft_out_im;
-reg ifft_enable;
 
 reg always_en;
 always@(posedge clk)

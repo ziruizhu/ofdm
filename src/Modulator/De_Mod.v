@@ -16,29 +16,28 @@ module De_Mod (
     reg cnt;
 
     always @(posedge clk) begin
-        if (reset) begin
+        if (reset) 
+        begin
             out <= 0;
             cnt <= 0;
             esig <= 0;
         end
         else if(fft_en)
         begin
-            case (inx)
-                16'b1: begin 
-                    case (iny)
-                        15'b1:  out <= 00;
-                        -15'b1: out <= 11;
-                        default: out <= 00;
-                    endcase
+            if (inx > 16'b0)
+                begin 
+                    if (iny > 16'b0)
+                        out <= 00;
+                    else
+                        out <= 11;
                 end
-                -16'b1:begin
-                    case (iny)
-                        15'b1: out <= 01;
-                        -15'b1:out <= 10;
-                        default: out <= 00;
-                    endcase
+            else
+                begin
+                    if (iny > 16'b0)
+                        out <= 01;
+                    else
+                        out <= 10;
                 end
-            endcase
         end
     end
 endmodule

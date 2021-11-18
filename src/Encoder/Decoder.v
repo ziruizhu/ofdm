@@ -30,7 +30,7 @@ module Decoder (clk, reset, in, en, out);
     end
 
     always @(posedge clk) begin
-        if (!sig && en)
+        if (!sig)
         begin
             if (in_count < 3'b111)
             begin
@@ -53,6 +53,7 @@ module Decoder (clk, reset, in, en, out);
                     e[i] = e[i] + matrix[i][j]*in_data[j];
                 end
             end
+            sig <= 0;
         end
 
         case (e)
