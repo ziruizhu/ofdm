@@ -50,6 +50,13 @@ wire signed [15:0] ifft_out_im;
 reg ifft_enable;
 
 reg always_en;
+always@(posedge clk)
+begin
+     if(reset)
+       begin
+          always_en <= 0;
+        end
+end
 
 always @(*) begin
     if (mod_en == 1'b1)
