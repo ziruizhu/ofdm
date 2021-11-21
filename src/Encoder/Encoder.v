@@ -1,11 +1,12 @@
 `timescale 1ns / 1ps
-module Encoder (clk, reset, in, out, esig);
+module Encoder (clk, reset, in, out, out_esig);
     input in;
     input reset;
     input clk;
     output reg out;
-    output reg esig;
+    output reg out_esig;
     
+    reg esig;
     reg [3:0] data;
     reg [7:0] out_data;
 
@@ -91,13 +92,19 @@ module Encoder (clk, reset, in, out, esig);
     else begin
         if (esig && out_count < 8)
         begin
+            out_esig <= 1;
             out <= out_data[out_count];
-            out_count <= out_count + 1;
+//            out_count <= out_count + 1;
+            if(out_count == 7)
+            begin
+                esig <= 0;
+                out_count <= 0;
+            end
+            else
+                out_count <= out_count + 1;
         end
-        else if (out_count == 8) begin
-            esig <= 0;
-            out_count <= 0;
-        end
+        if(!esig)
+            out_esig <= 0;
     end
     end
 

@@ -1,9 +1,9 @@
 `timescale 1ns/1ps
-module Decoder (clk, reset, in, en, out);
+module Decoder (clk, reset, in, demod_en, out);
     input clk;
     input reset;
-    input in;
-    input en;
+    input [1:0] in;
+    input demod_en;
     output reg [3:0] out;
 
 
@@ -27,20 +27,18 @@ module Decoder (clk, reset, in, en, out);
             e <= 0;
             in_count <= 0;
         end
-    end
-
-    always @(posedge clk) begin
-        if (!sig)
+        else if (demod_en)
         begin
-            if (in_count < 3'b111)
+            if (in_count < 3'b011)
             begin
-                in_data <= {in, in_data[7:1]};
+                in_data <= {in, in_data[7:2]};
                 in_count <= in_count + 1;
             end
-            else if (in_count == 3'b111)
+            else if (in_count == 3'b011)
             begin
                 sig <= 1;
                 in_count <= 0;
+                e <= 0;
             end
         end
     end
@@ -50,20 +48,25 @@ module Decoder (clk, reset, in, en, out);
         begin
             for (i = 0;i<3 ;i=i+1 ) begin
                 for (j = 0;j < 8 ;j=j+1 ) begin
-                    e[i] = e[i] + matrix[i][j]*in_data[j];
+                    e[i] = e[i] + matrix[i][j]*in_data[7-j];
                 end
             end
+
+            
+
             sig <= 0;
+
         end
 
         case (e)
-            3'b000: out <= {in_data[1], in_data[2], in_data[3], in_data[4]};
-            3'b110: out <= {~in_data[1], in_data[2], in_data[3], in_data[4]};
-            3'b011: out <= {in_data[1], ~in_data[2], in_data[3], in_data[4]};
-            3'b011: out <= {in_data[1], in_data[2], ~in_data[3], in_data[4]};
-            3'b011: out <= {in_data[1], in_data[2], in_data[3], ~in_data[4]};
-            default: out <= 4'b0000;
+                3'b000: out <= {in_data[7], in_data[6], in_data[5], in_data[4]};
+                3'b110: out <= {~in_data[7], in_data[6], in_data[5], in_data[4]};
+                3'b011: out <= {in_data[7], ~in_data[6], in_data[5], in_data[4]};
+                3'b111: out <= {in_data[7], in_data[6], ~in_data[5], in_data[4]};
+                3'b101: out <= {in_data[7], in_data[6], in_data[5], ~in_data[4]};
+                default: out <= 4'b0000;
         endcase
+
     end
     
 endmodule

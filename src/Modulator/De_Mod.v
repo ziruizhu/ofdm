@@ -9,7 +9,7 @@ module De_Mod (
     input fft_en;
 
 
-    output en;
+    output reg en;
     output reg[1:0] out;
 
     reg esig;
@@ -24,20 +24,26 @@ module De_Mod (
         end
         else if(fft_en)
         begin
-            if (inx > 16'b0)
-                begin 
-                    if (iny > 16'b0)
+            if (inx > 0)
+                begin
+                    if (iny > 0)
                         out <= 00;
                     else
                         out <= 11;
                 end
             else
                 begin
-                    if (iny > 16'b0)
+                    if (iny > 0)
                         out <= 01;
                     else
                         out <= 10;
                 end
+            en <= 1;
+        end
+        else
+        begin
+            en <= 0;
+            out <= 0;
         end
     end
 endmodule

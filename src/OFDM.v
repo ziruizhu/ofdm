@@ -27,7 +27,7 @@ Encoder encoder1(
     .reset(reset),
     .in(x_in),
     .out(encoder_out),
-    .esig(encoder_esig)
+    .out_esig(encoder_esig)
 );
 
 wire mod_en;
@@ -38,6 +38,7 @@ Mod mod1(
     .clk(clk),
     .reset(reset),
     .en(mod_en),
+    .encoder_en(encoder_esig),
     .in(encoder_out),
     .outx(mod_outx),
     .outy(mod_outy)
@@ -64,12 +65,28 @@ always @(*) begin
     end
 end
 
+wire reg_out_en;
+wire signed [15:0] reg_out_x;
+wire signed [15:0] reg_out_y;
+
+FFT_Register fft_register1(
+    .clk(clk), 
+    .reset(reset), 
+    .inx(mod_outx), 
+    .iny(mod_outy), 
+    .mod_en(mod_en), 
+    .out_en(reg_out_en), 
+    .outx(reg_out_x), 
+    .outy(reg_out_y)
+);
+
+
 IFFT64 ifft1(
-    .clock(clk_half),
+    .clock(clk),
     .reset(reset),
-    .di_en(always_en),
-    .di_re(mod_outx),
-    .di_im(mod_outy),
+    .di_en(reg_out_en),
+    .di_re(reg_out_x),
+    .di_im(reg_out_y),
     .do_en(ifft_en),
     .do_re(ifft_out_re),
     .do_im(ifft_out_im)
@@ -125,10 +142,10 @@ De_Mod deMod1(
     .clk(clk),
     .reset(reset),
     .fft_en(fft_en),
-    .inx(fft_out_re),
-    .iny(fft_out_im),
+    .inx(fft_out_im),
+    .iny(fft_out_re),
     .out(demod_out),
-    .en(en)
+    .en(demod_en)
 );
 
 
@@ -138,6 +155,7 @@ Decoder decoder1(
     .clk(clk),
     .reset(reset),
     .in(demod_out),
+    .demod_en(demod_en),
     .out(x_out)
 );
 
