@@ -93,7 +93,7 @@ module Encoder (clk, reset, in, out, out_esig);
         if (esig && out_count < 8)
         begin
             out_esig <= 1;
-            out <= out_data[out_count];
+            out <= out_data[7-out_count];
 //            out_count <= out_count + 1;
             if(out_count == 7)
             begin

@@ -11,6 +11,7 @@ module Decoder (clk, reset, in, demod_en, out);
     reg [7:0] matrix[0:2];
     reg [7:0] in_data;
     reg [2:0] e;
+    reg [7:0] data_cache;
 
     reg sig;
 
@@ -36,6 +37,7 @@ module Decoder (clk, reset, in, demod_en, out);
             end
             else if (in_count == 3'b011)
             begin
+                data_cache <= {in, in_data[7:2]};
                 sig <= 1;
                 in_count <= 0;
                 e <= 0;
@@ -48,7 +50,7 @@ module Decoder (clk, reset, in, demod_en, out);
         begin
             for (i = 0;i<3 ;i=i+1 ) begin
                 for (j = 0;j < 8 ;j=j+1 ) begin
-                    e[i] = e[i] + matrix[i][j]*in_data[7-j];
+                    e[i] = e[i] + matrix[i][j]*data_cache[j];
                 end
             end
 
@@ -59,11 +61,11 @@ module Decoder (clk, reset, in, demod_en, out);
         end
 
         case (e)
-                3'b000: out <= {in_data[7], in_data[6], in_data[5], in_data[4]};
-                3'b110: out <= {~in_data[7], in_data[6], in_data[5], in_data[4]};
-                3'b011: out <= {in_data[7], ~in_data[6], in_data[5], in_data[4]};
-                3'b111: out <= {in_data[7], in_data[6], ~in_data[5], in_data[4]};
-                3'b101: out <= {in_data[7], in_data[6], in_data[5], ~in_data[4]};
+                3'b000: out <= {data_cache[1], data_cache[2], data_cache[3], data_cache[4]};
+                3'b110: out <= {~data_cache[1], data_cache[2], data_cache[3], data_cache[4]};
+                3'b011: out <= {data_cache[1], ~data_cache[2], data_cache[3], data_cache[4]};
+                3'b111: out <= {data_cache[1], data_cache[2], ~data_cache[3], data_cache[4]};
+                3'b101: out <= {data_cache[1], data_cache[2], data_cache[3], ~data_cache[4]};
                 default: out <= 4'b0000;
         endcase
 

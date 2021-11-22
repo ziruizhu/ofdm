@@ -26,7 +26,7 @@ module Mod (
         begin
             if(cnt == 1'b1)
             begin
-                data_cache <= {in_data[0], in};
+                data_cache <= {in, in_data[1]};
                 cnt <= 0;
                 esig <= 1;
             end
@@ -34,7 +34,7 @@ module Mod (
             begin
                 en <= 0;
                 esig <= 0;
-                in_data <= {in_data[0], in};
+                in_data <= {in, in_data[1]};
                 cnt <= 1;
             end
         end
