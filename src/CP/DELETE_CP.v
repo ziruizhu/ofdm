@@ -92,7 +92,7 @@ always@(posedge CLK_I or posedge RST_I)begin
     else begin
     //shibu
         if(dvalid_r)begin
-            
+            ACK_O<=0;
             if(~send1_r[65])begin
                         
                 DAT_O_r<=send1_r[word_cnt_r];
@@ -105,7 +105,7 @@ always@(posedge CLK_I or posedge RST_I)begin
                     
             if (word_cnt_r==LCP+NFFT) begin
                     word_cnt_r<=10'd1;
-                    dvalid_r<=0;
+                   // dvalid_r<=0;
             end
           end
     //xubu
@@ -122,11 +122,11 @@ always@(posedge CLK_I or posedge RST_I)begin
                     
             if (word_cnt_i==LCP+NFFT) begin
                     word_cnt_i<=10'd1;
-                    dvalid_i<=0;
+                    //dvalid_i<=0;
             end
          end
     end
     
 end
-assign ACK_O=1;
+
 endmodule

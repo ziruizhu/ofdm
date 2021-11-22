@@ -14,9 +14,9 @@ reg [15:0] send2_r[64:0],send2_i[64:0];
 reg [9:0] dat_cnt_r,dat_cnt_i;
 reg [31:0] i;
 wire  inCP_r  = dat_cnt_r <= NFFT;
-wire  infrm_r = dat_cnt_r < NFFT+LCP;
+wire  infrm_r = dat_cnt_r <= NFFT+LCP;
 wire  inCP_i  = dat_cnt_i <= NFFT;
-wire  infrm_i = dat_cnt_i < NFFT+LCP;
+wire  infrm_i = dat_cnt_i <= NFFT+LCP;
 always @(posedge CLK_I or posedge RST_I)
 begin
 	if (RST_I) 	begin
@@ -100,15 +100,20 @@ end
 
 reg[31:0]word_cnt_r,word_cnt_i;
 reg[31:0] sum_r,sum_i;
+reg[31:0] sym_r,sym_i;
 always@(posedge CLK_II or posedge RST_I)begin
     if(RST_I)begin
        		word_cnt_r<=0;
 			word_cnt_i<=0;
             sum_r<=0;
-            sum_i<=0;     
+            sum_i<=0;
+            sym_r<=0;
+            sym_i<=0;     
 	end
     else begin
-         if((dat_cnt_r>48 & dat_cnt_r<64) || dat_cnt_r==0)begin          
+         if(dat_cnt_r==48)
+            sym_r<=1;
+         if((dat_cnt_r>48 & dat_cnt_r<64) || (dat_cnt_r==0&sym_r))begin          
                         if(sum_r==31)begin
                             sum_r<=0;
                             dout_r<=1;
@@ -136,7 +141,9 @@ always@(posedge CLK_II or posedge RST_I)begin
 	
     	end
 	//xubu
-	    if((dat_cnt_i>48 & dat_cnt_i<64) || dat_cnt_i==0)begin
+	    if(dat_cnt_i==48)
+               sym_i<=1;
+	    if((dat_cnt_i>48 & dat_cnt_i<64) || (dat_cnt_i==0&sym_i))begin
                    if(sum_i==31)begin
                        sum_i<=0;
                        dout_i<=1;
