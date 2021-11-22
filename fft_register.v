@@ -49,7 +49,7 @@ module FFT_Register (
             begin
                 input_cnt <= 0;
                 out_sig <= 1;
-                out_en <= 1;
+                // out_en <= 1;
                 for(i = 0;i < 63;i = i + 1)
                 begin
                     datax_cache[i] <= input_datax[i];
