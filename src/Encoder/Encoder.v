@@ -9,6 +9,7 @@ module Encoder (clk, reset, in, out, out_esig);
     reg esig;
     reg [3:0] data;
     reg [7:0] out_data;
+    reg [3:0] data_cache;
 
     reg [1:0] in_count;
     reg [3:0] out_count;
@@ -17,6 +18,8 @@ module Encoder (clk, reset, in, out, out_esig);
     reg eesig;
 
     reg [3:0] matrix[0:7];
+
+    integer i;
     
     always @(posedge clk) 
     begin
@@ -35,77 +38,64 @@ module Encoder (clk, reset, in, out, out_esig);
     end
 
     always @(posedge clk or posedge reset) 
+    begin
     if(reset)begin
         data <= 4'b0;
-        in_count <= 2'b0;
+        in_count <= 2'b11;
         sig <= 0;
+        esig <= 0;
         eesig <= 0;
+        out_count <= 0;
     end
     else
     begin
         if (in_count == 2'b11) 
             begin
                 in_count <= 2'b00;
+                data_cache <= {data[2:0], in};
                 sig <= 1;
             end
         else
             begin
+                sig <= 0;
                 in_count <= in_count + 1;
                 data <= {data[2:0], in};
             end
     end
     
-    integer i;
-    
-    always @(posedge clk)
-    begin
-    if(sig)
-        eesig <= 1;
-    end
-    
 
-    always @(posedge clk) 
-    if (eesig)
+    if(sig)
     begin
         for (i = 0;i < 8 ;i = i + 1) 
         begin
             if (i == 7)
-                out_data[i] <= data[0] * matrix[i][0] + 
-                            data[1] * matrix[i][1] +
-                            data[2] * matrix[i][2] + 
-                            data[3] * matrix[i][3] + 1;
+                out_data[i] <= data_cache[0] * matrix[i][0] + 
+                            data_cache[1] * matrix[i][1] +
+                            data_cache[2] * matrix[i][2] + 
+                            data_cache[3] * matrix[i][3] + 1;
             else
-                out_data[i] <= data[0] * matrix[i][0] + 
-                            data[1] * matrix[i][1] +
-                            data[2] * matrix[i][2] + 
-                            data[3] * matrix[i][3];
+                out_data[i] <= data_cache[0] * matrix[i][0] + 
+                            data_cache[1] * matrix[i][1] +
+                            data_cache[2] * matrix[i][2] + 
+                            data_cache[3] * matrix[i][3];
         end
         esig <= 1;
-        sig <= 0;
-        eesig <= 0;
     end
-
-
-    always @(posedge clk) begin
-    if(reset)
-        out_count <= 0;
-    else begin
-        if (esig && out_count < 8)
-        begin
-            out_esig <= 1;
-            out <= out_data[7-out_count];
+    else if (esig && out_count < 8)
+    begin
+        out_esig <= 1;
+        out <= out_data[7-out_count];
 //            out_count <= out_count + 1;
-            if(out_count == 7)
-            begin
-                esig <= 0;
-                out_count <= 0;
-            end
-            else
-                out_count <= out_count + 1;
+        if(out_count == 7)
+        begin
+            esig <= 0;
+            out_count <= 0;
         end
+        else
+            out_count <= out_count + 1;
         if(!esig)
             out_esig <= 0;
     end
-    end
+end
 
 endmodule
